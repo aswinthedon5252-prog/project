@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern Multi-Step Registration</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      width: 420px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      overflow: hidden;
+      animation: fadeIn 0.6s ease;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.9);}
+      to {opacity: 1; transform: scale(1);}
+    }
+    header {
+      background: #4A90E2;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+    form {
+      padding: 25px;
+    }
+    .step {
+      display: none;
+      animation: slide 0.4s ease;
+    }
+    @keyframes slide {
+      from {opacity: 0; transform: translateX(50px);}
+      to {opacity: 1; transform: translateX(0);}
+    }
+    .step.active {
+      display: block;
+    }
+    label {
+      display: block;
+      font-weight: 500;
+      margin-top: 10px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+    input[type="radio"] {
+      width: auto;
+      margin-right: 6px;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    button {
+      background: #4A90E2;
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #357ABD;
+      transform: scale(1.05);
+    }
+    .progress {
+      display: flex;
+      justify-content: space-between;
+      margin: 20px 0;
+    }
+    .circle {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: #ddd;
+      color: #555;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      position: relative;
+    }
+    .circle.active {
+      background: #4A90E2;
+      color: white;
+    }
+    .circle::after {
+      content: "";
+      position: absolute;
+      width: 60px;
+      height: 4px;
+      background: #ddd;
+      top: 50%;
+      right: -70px;
+      transform: translateY(-50%);
+      z-index: -1;
+    }
+    .circle:last-child::after {
+      display: none;
+    }
+    .circle.active::after {
+      background: #4A90E2;
+    }
+    #preview {
+      display: block;
+      margin: 10px auto;
+      max-width: 120px;
+      border-radius: 50%;
+      border: 2px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>🌟 Multi-Step Registration</header>
+    <form id="regForm">
+      <div class="progress">
+        <div class="circle active">1</div>
+        <div class="circle">2</div>
+        <div class="circle">3</div>
+      </div>
+      <div class="step active">
+        <label>Full Name:</label>
+        <input type="text" id="fullname" placeholder="Enter your name">
+        <label>Email:</label>
+        <input type="email" id="email" placeholder="Enter your email">
+        <label>Phone:</label>
+        <input type="tel" id="phone" placeholder="Enter your phone number">
+      </div>
+      <div class="step">
+        <label>Username:</label>
+        <input type="text" id="username" placeholder="Choose a username">
+        <label>Password:</label>
+        <input type="password" id="password" placeholder="Enter password">
+        <label>Gender:</label>
+        <input type="radio" name="gender" value="Male"> Male
+        <input type="radio" name="gender" value="Female"> Female
+        <input type="radio" name="gender" value="Other"> Other
+      </div>
+      <div class="step">
+        <label>Upload Profile Photo:</label>
+        <input type="file" id="photo" accept="image/*">
+        <img id="preview" src="" alt="">
+        <button type="button" onclick="submitForm()">Submit</button>
+      </div>
+      <div class="buttons">
+        <button type="button" id="prevBtn" onclick="nextPrev(-1)">⬅ Prev</button>
+        <button type="button" id="nextBtn" onclick="nextPrev(1)">Next ➡</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    let currentStep = 0;
+    const steps = document.querySelectorAll(".step");
+    const circles = document.querySelectorAll(".circle");
+    function showStep(n) {
+      steps.forEach((step, i) => step.classList.toggle("active", i === n));
+      circles.forEach((c, i) => c.classList.toggle("active", i <= n));
+      document.getElementById("prevBtn").style.display = n === 0 ? "none" : "inline-block";
+      document.getElementById("nextBtn").style.display = n === steps.length - 1 ? "none" : "inline-block";
+    }
+    function nextPrev(n) {
+      currentStep += n;
+      if (currentStep >= steps.length) currentStep = steps.length - 1;
+      if (currentStep < 0) currentStep = 0;
+      showStep(currentStep);
+    }
+    document.getElementById("photo").addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => document.getElementById("preview").src = e.target.result;
+        reader.readAsDataURL(file);
+      }
+    });
+    function submitForm() {
+      const name = document.getElementById("fullname").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;   
+      let gender = "";
+      document.getElementsByName("gender").forEach(radio => {
+        if (radio.checked) gender = radio.value;
+      });
+      const photoFile = document.getElementById("photo").files[0];
+      const photoName = photoFile ? photoFile.name : "No file chosen";
+      alert(
+        `🎉 Registration Complete!\n\n` +
+        `👤 Name: ${name}\n📧 Email: ${email}\n📞 Phone: ${phone}\n🧑 Username: ${username}\n🔑 Password: ${password}\n⚧ Gender: ${gender}\n🖼️ Photo: ${photoName}`
+      );
+    }
+    showStep(currentStep);
+  </script>
+<h1>thank you</h1>
+</body>
+</html>
